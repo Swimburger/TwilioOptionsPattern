@@ -2,9 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
-using Twilio.Types;
 
-// Build a config object, using env vars and JSON providers.
 IConfiguration config = new ConfigurationBuilder()
 	.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
 	.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true, reloadOnChange: false)
@@ -12,15 +10,32 @@ IConfiguration config = new ConfigurationBuilder()
 	.AddCommandLine(args)
 	.Build();
 
-var twilioAccountSid = config["Twilio:AccountSid"];
-var twilioAuthToken = config["Twilio:AuthToken"];
-var twilioPhoneNumber = config["Twilio:PhoneNumber"];
-var toPhoneNumber = config["ToPhoneNumber"];
+var twilioAuthenticationOptions = new TwilioAuthenticationOptions();
+config.GetSection("Twilio").Bind(twilioAuthenticationOptions);
 
-TwilioClient.Init(twilioAccountSid, twilioAuthToken);
+var messageOptions = new MessageOptions();
+config.GetSection("Message").Bind(messageOptions);
+
+TwilioClient.Init(
+	username: twilioAuthenticationOptions.AccountSid, 
+	password: twilioAuthenticationOptions.AuthToken
+);
 
 MessageResource.Create(
-	from: new PhoneNumber(twilioPhoneNumber),
-	to: new PhoneNumber(toPhoneNumber),
-	body: "Ahoy!"
+	from: messageOptions.From,
+	to: messageOptions.To,
+	body: messageOptions.Body
 );
+
+public class TwilioAuthenticationOptions
+{
+	public string AccountSid { get; set; }
+	public string AuthToken { get; set; }
+}
+
+public class MessageOptions
+{
+	public string From { get; set; }
+	public string To { get; set; }
+	public string Body { get; set; }
+}
