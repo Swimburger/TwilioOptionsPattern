@@ -1,11 +1,21 @@
-﻿using Twilio;
+﻿using System.Reflection;
+using Microsoft.Extensions.Configuration;
+using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
 
-var twilioAccountSid = Environment.GetEnvironmentVariable("TwilioAccountSid");
-var twilioAuthToken = Environment.GetEnvironmentVariable("TwilioAuthToken");
-var twilioPhoneNumber = Environment.GetEnvironmentVariable("TwilioPhoneNumber");
-var toPhoneNumber = Environment.GetEnvironmentVariable("ToPhoneNumber");
+// Build a config object, using env vars and JSON providers.
+IConfiguration config = new ConfigurationBuilder()
+	.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+	.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true, reloadOnChange: false)
+	.AddEnvironmentVariables()
+	.AddCommandLine(args)
+	.Build();
+
+var twilioAccountSid = config["Twilio:AccountSid"];
+var twilioAuthToken = config["Twilio:AuthToken"];
+var twilioPhoneNumber = config["Twilio:PhoneNumber"];
+var toPhoneNumber = config["ToPhoneNumber"];
 
 TwilioClient.Init(twilioAccountSid, twilioAuthToken);
 
