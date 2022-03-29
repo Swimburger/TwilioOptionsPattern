@@ -3,7 +3,7 @@ using Twilio.Rest.Api.V2010.Account;
 
 var twilioAccountSid = Environment.GetEnvironmentVariable("TwilioAccountSid");
 var twilioAuthToken = Environment.GetEnvironmentVariable("TwilioAuthToken");
-var twilioPhoneNumber = Environment.GetEnvironmentVariable("TwilioPhoneNumber");
+var fromPhoneNumber = Environment.GetEnvironmentVariable("FromPhoneNumber");
 var toPhoneNumber = Environment.GetEnvironmentVariable("ToPhoneNumber");
 
 TwilioClient.Init(
@@ -12,7 +12,7 @@ TwilioClient.Init(
 );
 
 MessageResource.Create(
-	from: twilioPhoneNumber,
+	from: fromPhoneNumber,
 	to: toPhoneNumber,
 	body: "Ahoy!"
 );
