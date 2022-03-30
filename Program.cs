@@ -1,14 +1,11 @@
-﻿using System.Reflection;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 
-IConfiguration config = new ConfigurationBuilder()
-	.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
-	.AddUserSecrets(Assembly.GetExecutingAssembly(), optional: true, reloadOnChange: false)
-	.AddEnvironmentVariables()
-	.AddCommandLine(args)
-	.Build();
+using IHost host = Host.CreateDefaultBuilder(args).Build();
+var config = host.Services.GetRequiredService<IConfiguration>();
 
 var twilioOptions = config.GetSection("Twilio").Get<TwilioOptions>();
 TwilioClient.Init(
