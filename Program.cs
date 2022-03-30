@@ -10,20 +10,28 @@ IConfiguration config = new ConfigurationBuilder()
 	.AddCommandLine(args)
 	.Build();
 
-var twilioAccountSid = config["Twilio:AccountSid"];
-var twilioAuthToken = config["Twilio:AuthToken"];
-
-var fromPhoneNumber = config["Message:From"];
-var toPhoneNumber = config["Message:To"];
-var messageBody = config["Message:Body"];
-
+var twilioOptions = config.GetSection("Twilio").Get<TwilioOptions>();
 TwilioClient.Init(
-	username: twilioAccountSid,
-	password: twilioAuthToken
+	username: twilioOptions.AccountSid,
+	password: twilioOptions.AuthToken
 );
 
+var messageOptions = config.GetSection("Message").Get<MessageOptions>();
 MessageResource.Create(
-	from: fromPhoneNumber,
-	to: toPhoneNumber,
-	body: messageBody
+	from: messageOptions.From,
+	to: messageOptions.To,
+	body: messageOptions.Body
 );
+
+public class TwilioOptions
+{
+	public string AccountSid { get; set; }
+	public string AuthToken { get; set; }
+}
+
+public class MessageOptions
+{
+	public string From { get; set; }
+	public string To { get; set; }
+	public string Body { get; set; }
+}
