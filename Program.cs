@@ -14,10 +14,21 @@ using IHost host = Host.CreateDefaultBuilder(args)
 	.Build();
 
 var twilioOptions = host.Services.GetRequiredService<IOptions<TwilioOptions>>().Value;
-TwilioClient.Init(
-	username: twilioOptions.AccountSid,
-	password: twilioOptions.AuthToken
-);
+if (twilioOptions.CredentialType == CredentialType.ApiKey)
+{
+	TwilioClient.Init(
+		username: twilioOptions.ApiKeySid,
+		password: twilioOptions.ApiKeySecret,
+		accountSid: twilioOptions.AccountSid
+	);
+}
+else
+{
+	TwilioClient.Init(
+		username: twilioOptions.AccountSid,
+		password: twilioOptions.AuthToken
+	);
+}
 
 var messageSender = host.Services.GetRequiredService<MessageSender>();
 messageSender.SendMessage();
@@ -26,7 +37,7 @@ public class MessageSender
 {
 	private readonly MessageOptions messageOptions;
 
-	public MessageSender(IOptions<MessageOptions>  messageOptions)
+	public MessageSender(IOptions<MessageOptions> messageOptions)
 	{
 		this.messageOptions = messageOptions.Value;
 	}
@@ -41,10 +52,21 @@ public class MessageSender
 	}
 }
 
+public enum CredentialType
+{
+	AuthToken,
+	ApiKey
+}
+
 public class TwilioOptions
 {
+	public CredentialType CredentialType { get; set; } 
+		= CredentialType.AuthToken;
+	
 	public string AccountSid { get; set; }
 	public string AuthToken { get; set; }
+	public string ApiKeySid { get; set; }
+	public string ApiKeySecret { get; set; }
 }
 
 public class MessageOptions
